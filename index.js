@@ -26,9 +26,12 @@ app.post('/locusnineapi/v1/users',(req,res)=>{
     axios.post('https://locusninedevdata.firebaseio.com/users.json',req.body)
          .then(response=>console.log(`Data added successfully:: ${response.data}`))
          .catch(error=>{console.log(`Failed to add data:: ${error}`)}); 
-         res.send('Data added.')
-    res.send('Done');
+         res.status(201).json({
+            status:'success', 
+         });
 });
+
+
 
 app.listen(port,()=>{
     console.log(`App running on port :: ${port}`);
