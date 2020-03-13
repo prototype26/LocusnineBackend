@@ -1,37 +1,29 @@
-const port = 3000;
-const axios  = require('axios');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const express = require('express');
 const app = express();
+const cors = require('cors');
 app.use(express.json());
+app.use(cors());
+dotenv.config({path:'./config.env'});
 
-// get--/locusnineapi/v1/users
-app.get('/locusnineapi/v1/users',(req, res)=>{
-    axios.get('https://locusninedevdata.firebaseio.com/users.json').then(resp=>{
-        res.status(200).json({
-            status: 'success',
-            results: resp.data.length,
-            data: {
-                users: resp.data
-            }
-        })
-    }).catch(error=>{
-        console.log(`Error fetching data:: ${error}`);
-        return null;
-    });
+const DB = process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWORD);
+
+//DB connection
+mongoose.connect(DB,{
+    useNewUrlParser:true,
+    useCreateIndex:true,
+    useFindAndModify:false
+})
+.then(con=>{
+    console.log('DB connected')
 });
 
-//post--/locusnineapi/v1/users
-//axios post request
-app.post('/locusnineapi/v1/users',(req,res)=>{
-    axios.post('https://locusninedevdata.firebaseio.com/users.json',req.body)
-         .then(response=>console.log(`Data added successfully:: ${response.data}`))
-         .catch(error=>{console.log(`Failed to add data:: ${error}`)}); 
-         res.status(201).json({
-            status:'success', 
-         });
-});
+const port = process.env.PORT;
+const userRouter = require('./routes/userRoutes/userRoutes');
 
-
+//mounting of router
+app.use('/locusnineapi/v1/users',userRouter);
 
 app.listen(port,()=>{
     console.log(`App running on port :: ${port}`);
